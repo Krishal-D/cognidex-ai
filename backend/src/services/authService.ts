@@ -10,6 +10,11 @@ export const authService = {
 
     async register(name: string, email: string, password: string): Promise<AuthUser> {
 
+        const existing = await userModel.findUserByEmail(email)
+        if (existing) {
+            throw new Error('Email already in use'), { status: 409 }
+        }
+
         const hashedPassword = await hashPassword(password)
         const user = await userModel.createUser(name, email, hashedPassword)
         const payload: TokenPayload = { id: user.id, email: user.email }
