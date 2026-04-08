@@ -34,7 +34,21 @@ export const userModel: IUserModel = {
 
     async removeRefreshToken(id: number): Promise<void> {
         await pool.query('UPDATE users SET refresh_token = NULL WHERE id = $1', [id])
+    },
+
+    async verifyRefreshToken(id: number, refreshToken: string): Promise<User | null> {
+        const result = await pool.query(
+            `SELECT id, name, email
+            FROM users
+            WHERE id = $1 AND refresh_token = $2`,
+            [id, refreshToken]
+        )
+
+        return result.rows[0] || null;
+
     }
+
+
 
 
 

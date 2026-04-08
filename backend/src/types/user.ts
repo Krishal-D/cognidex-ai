@@ -5,7 +5,6 @@ export interface User {
     password?: string;
     refresh_token?: string;
     created_at?: Date;
-    role: string;
 }
 
 export interface IUserModel {
@@ -25,4 +24,9 @@ export interface AuthUser {
     },
     refreshToken: string;
     accessToken: string;
+}
+
+export interface RefreshTokens {
+    newAccessToken: string;
+    newRefreshToken: string;
 }
