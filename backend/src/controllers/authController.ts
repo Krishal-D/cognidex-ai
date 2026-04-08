@@ -1,6 +1,5 @@
 import { authService } from "../services/authService"
 import type { Request, Response, NextFunction } from "express"
-import { cookieOptions } from "../config/auth"
 
 
 export const authController = {
@@ -13,7 +12,12 @@ export const authController = {
             }
             const result = await authService.register(name, email, password)
 
-            res.cookie('refreshToken', result.refreshToken,cookieOptions)
+            res.cookie('refreshToken', result.refreshToken, {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === 'production',
+                sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+                maxAge: 7 * 24 * 60 * 60 * 1000,
+            })
 
             res.status(201).json({
                 token: result.accessToken,

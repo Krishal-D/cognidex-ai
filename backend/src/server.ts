@@ -5,6 +5,7 @@ import cookieParser from 'cookie-parser'
 import dotenv from 'dotenv'
 import authRoute from './routes/authRoute'
 import { errorHandler } from './middleware/errorHandling'
+import documentRoute from './routes/documentRoutes'
 
 dotenv.config()
 
@@ -18,9 +19,11 @@ app.use(cors({
 }))
 app.use(express.json())
 app.use(cookieParser())
+app.use(errorHandler)
+
 
 app.use('/api/auth/', authRoute)
-app.use(errorHandler)
+app.use('/api/document/', documentRoute)
 
 app.listen(PORT, () => {
     console.log(`Server Running on port ${PORT} `)
