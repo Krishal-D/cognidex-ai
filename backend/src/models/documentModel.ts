@@ -40,6 +40,16 @@ export const documentModel: IDocumentModel = {
         `, [documentId, ownerId]);
 
         return result.rowCount;
+    },
+
+    async updateStatus(status: DocumentStatus, documentId: number):Promise<Document> {
+        const result = await pool.query(`
+           UPDATE documents
+            SET status=$1
+            where id=$2
+            RETURNING *
+            `, [status, documentId])
+        return result.rows[0]
     }
 
 }

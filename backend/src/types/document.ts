@@ -21,6 +21,7 @@ export interface IDocumentModel {
     uploadDocument(documentName: string, ownerId: number, status: DocumentStatus): Promise<Document | null>;
     findDocumentByUser(documentId: number): Promise<DocumentWithUser[]>;
     deleteDocument(documentId: number, ownerId: number): Promise<number | null>;
+    updateStatus(status:DocumentStatus,documentId:number):Promise<Document>
 }
 
 export type UploadResult = {
@@ -31,4 +32,17 @@ export type UploadResult = {
     };
     pdfData: any;
     chunks: string[];
+}
+
+export interface Chunk {
+    id: number;
+    chunk_idx: number;
+    content: string;
+    document_id: number;
+    created_at: Date;
+}
+
+export interface IChunkModel {
+    insertChunk(chunkIdx: number, content: string, documentId: number): Promise<Chunk>;
+    getChunksByDocument(documentId: number): Promise<Chunk[]>;
 }

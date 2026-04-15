@@ -1,4 +1,5 @@
 import { documentModel } from "../models/documentModel";
+import { chunkModel } from "../models/chunkModel";
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const pdfParse = require('pdf-parse').default ?? require('pdf-parse');
 import { UploadResult, DocumentStatus, DocumentWithUser } from "../types";
@@ -14,6 +15,13 @@ export const documentService = {
         const cleanedText = pdfData.text.replace(/\s+/g, " ").trim();
 
         const chunks = chunkText(cleanedText, 500, 50)
+
+        if (document?.id) {
+            for (let i = 0; i < chunks.length; i++) {
+                const content = chunks[i]
+                if (content) await chunkModel.insertChunk(i, content, document.id)
+            }
+        }
 
 
         return ({
