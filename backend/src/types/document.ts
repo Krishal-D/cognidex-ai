@@ -15,13 +15,13 @@ export interface DocumentWithUser {
     created_at: Date;
 }
 
-export type DocumentStatus = "pending" | "indexed" | "processed";
+export type DocumentStatus = "pending" | "indexed" | "processing"|"failed";
 
 export interface IDocumentModel {
     uploadDocument(documentName: string, ownerId: number, status: DocumentStatus): Promise<Document | null>;
     findDocumentByUser(documentId: number): Promise<DocumentWithUser[]>;
     deleteDocument(documentId: number, ownerId: number): Promise<number | null>;
-    updateStatus(status:DocumentStatus,documentId:number):Promise<Document>
+    updateStatus(status: DocumentStatus, documentId: number): Promise<Document>
 }
 
 export type UploadResult = {
@@ -43,6 +43,6 @@ export interface Chunk {
 }
 
 export interface IChunkModel {
-    insertChunk(chunkIdx: number, content: string, documentId: number): Promise<Chunk>;
+    insertChunk(chunkIdx: number, content: string, embedding: number[], documentId: number): Promise<Chunk>;
     getChunksByDocument(documentId: number): Promise<Chunk[]>;
 }
