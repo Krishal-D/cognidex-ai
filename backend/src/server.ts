@@ -6,6 +6,7 @@ import dotenv from 'dotenv'
 import authRoute from './routes/authRoute'
 import { errorHandler } from './middleware/errorHandling'
 import documentRoute from './routes/documentRoutes'
+import chatRoute from './routes/chatRoute'
 
 dotenv.config()
 
@@ -22,7 +23,8 @@ app.use(cookieParser())
 
 
 app.use('/api/auth/', authRoute)
-app.use('/api/document/', documentRoute)
+app.use('/api/document', documentRoute)
+app.use('/api/chat',chatRoute)
 app.use(errorHandler)
 
 app.listen(PORT, () => {

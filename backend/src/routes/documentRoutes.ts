@@ -6,7 +6,7 @@ import { authenticate } from "../middleware/auth";
 const router = express.Router()
 
 router.post('/upload', upload.single('file'), authenticate, documentController.uploadDocument)
-router.get('/:id',authenticate, documentController.findDocumentByUser )
+router.get('/',authenticate, documentController.findDocumentByUser )
 router.delete('/:id',authenticate,documentController.deleteDocument)
 
 export default router

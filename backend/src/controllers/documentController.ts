@@ -69,6 +69,9 @@ export const documentController = {
             }
 
             const documentId = Number(documentIdParam)
+            if (!Number.isInteger(documentId) || documentId <= 0) {
+                return res.status(400).json({ message: "Invalid document id" });
+            }
 
             await documentService.deleteDocument(documentId, ownerId)
 
@@ -76,5 +79,31 @@ export const documentController = {
         } catch (error) {
             next(error)
         }
+    },
+
+
+    async query(req: Request, res: Response, next: NextFunction) {
+
+        try {
+            const { question } = req.body
+            const ownerId = req.user?.id
+
+            if (!question || typeof question !== "string" || !question.trim()) {
+                return res.status(400).json({ message: "Question is required" });
+            }
+
+            if (!ownerId) {
+                return res.status(401).json({ message: "Unauthorized" });
+            }
+
+            const answer = await documentService.queryDocument(question, ownerId)
+
+            return res.status(200).json({ answer })
+
+
+        } catch (error) {
+            next(error)
+        }
+
     }
 };
