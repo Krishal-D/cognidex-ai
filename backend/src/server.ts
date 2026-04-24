@@ -22,8 +22,8 @@ app.use(express.json())
 app.use(cookieParser())
 
 
-app.use('/api/auth/', authRoute)
-app.use('/api/document', documentRoute)
+app.use('/api/auth', authRoute)
+app.use('/api/documents', documentRoute)
 app.use('/api/chat',chatRoute)
 app.use(errorHandler)
 
