@@ -1,5 +1,5 @@
 import { pool } from "../config/db"
-import { IChatModel, Conversation, Message, MessageWithConversation, MessageRole } from "../types"
+import { IChatModel, MessageRole } from "../types"
 
 export const chatModel: IChatModel = {
 

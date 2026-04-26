@@ -31,7 +31,7 @@ export type UploadResult = {
         ownerId: number | undefined;
         status: string | undefined
     };
-    pdfData: any;
+    pdfData: unknown;
     chunks: string[];
 }
 
