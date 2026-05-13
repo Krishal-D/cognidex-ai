@@ -33,7 +33,11 @@ export interface Source {
 
 export interface AuthContextType {
   user: User | null
+  accessToken: string | null
+  loading: boolean
+  error: string | null
   register: (name: string, email: string, password: string) => Promise<void>
   login: (email: string, password: string) => Promise<void>
   logout: () => Promise<void>
+  refresh: () => Promise<void>
 }
