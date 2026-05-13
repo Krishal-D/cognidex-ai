@@ -21,8 +21,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             setAccessToken(data.token)
             setUser(data.user)
 
+            return data
+
         } catch (error) {
             setError('Register Failed')
+            throw error
 
         } finally {
             setLoading(false)
@@ -38,6 +41,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             const data = await authAPI.login(email, password)
             setAccessToken(data.token)
             setUser(data.user)
+            return data
+
 
         } catch (error) {
             setError('Login Failed')
