@@ -11,7 +11,7 @@ export const useConversations = (documentId: number | null) => {
         setLoading(true)
         try {
             const data = await chatAPI.getConversationByDocument(documentId)
-            setConversations(data.conversation || [])
+            setConversations(data.conversations || [])
         } finally {
             setLoading(false)
         }

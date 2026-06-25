@@ -39,6 +39,10 @@ export const chatAPI = {
     async getMessagesByConversation(conversationId: number) {
         const res = await client.get(`/chat/conversations/${conversationId}/messages`)
         return res.data
-    }
+    },
+    async deleteConversation(conversationId: number) {
+        const res = await client.delete(`/chat/conversations/${conversationId}`)
+        return res.data
+    },
 
 }
