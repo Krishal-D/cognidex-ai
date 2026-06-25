@@ -1,5 +1,6 @@
 import { pool } from "../config/db"
 import { IChatModel, MessageRole } from "../types"
+import { authError, notFoundError } from '../utils/errors'
 
 export const chatModel: IChatModel = {
 
@@ -61,19 +62,24 @@ export const chatModel: IChatModel = {
     async getMessagesByConversation(ownerId: number, conversationId: number) {
         const result = await pool.query(`
             SELECT 
-            m.id as messageId,
-            m.message_content as messageContent,
+            m.id,
+            m.message_content,
             m.role,
-            c.id as conversationId
+            m.created_at,
+            m.conversation_id
             FROM messages m
             INNER JOIN conversations c ON c.id = m.conversation_id
             WHERE c.owner_id=$1 AND m.conversation_id=$2
             ORDER BY m.created_at ASC
-
             `, [ownerId, conversationId])
         return result.rows
-
-    }
+    },
+    async deleteConversation(ownerId: number, conversationId: number): Promise<void> {
+        if (!ownerId) throw authError()
+        const conversation = await chatModel.getConversationById(ownerId, conversationId)
+        if (!conversation) throw notFoundError('Conversation not found')
+        await chatModel.deleteConversation(conversationId, ownerId)
+    },
 
 
 }

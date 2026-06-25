@@ -15,10 +15,11 @@ export interface Message {
 }
 
 export interface MessageWithConversation {
-    messageId: number;
-    messageContent: string;
+    id: number;
+    message_content: string;
     role: string;
-    conversationId: number;
+    conversation_id: number;
+    created_at: Date;
 }
 
 export type MessageRole = "user" | "assistant";
@@ -42,4 +43,5 @@ export interface IChatModel {
     getConversationById(ownerId: number, conversationId: number): Promise<Conversation | null>;
     createMessage(conversationId: number, role: MessageRole, messageContent: string): Promise<Message>;
     getMessagesByConversation(ownerId: number, conversationId: number): Promise<MessageWithConversation[]>;
+    deleteConversation(conversationId: number, ownerId: number): Promise<void>;  // ← add this
 }

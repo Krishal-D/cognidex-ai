@@ -2,21 +2,11 @@ import { getEmbedding } from "../utils/embedding";
 import { chunkModel } from "../models/chunkModel";
 import { generateAnswer } from "../utils/generate";
 import { chatModel } from "../models/chatModel";
+import { authError, notFoundError, validationError } from '../utils/errors'
 import { Conversation, Message, MessageWithConversation, MessageRole, QueryResult } from "../types";
 
 const VALID_ROLES: MessageRole[] = ["user", "assistant"];
 
-function authError(): Error {
-    return Object.assign(new Error("Unauthorized"), { status: 401 });
-}
-
-function validationError(message: string): Error {
-    return Object.assign(new Error(message), { status: 400 });
-}
-
-function notFoundError(message: string): Error {
-    return Object.assign(new Error(message), { status: 404 });
-}
 
 export const chatService = {
     async queryDocument(userQuery: unknown, conversationId: unknown, ownerId: number | undefined): Promise<QueryResult> {
@@ -157,5 +147,11 @@ export const chatService = {
         if (!conversationId || isNaN(parsedId)) throw validationError("Valid conversation ID is required");
 
         return chatModel.getMessagesByConversation(ownerId, parsedId);
-    }
+    },
+    async deleteConversation(ownerId: number, conversationId: number): Promise<void> {
+        if (!ownerId) throw authError()
+        const conversation = await chatModel.getConversationById(ownerId, conversationId)
+        if (!conversation) throw notFoundError('Conversation not found')
+        await chatModel.deleteConversation(conversationId, ownerId)
+    },
 }

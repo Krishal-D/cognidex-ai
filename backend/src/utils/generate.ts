@@ -18,11 +18,16 @@ export const generateAnswer = async (context: string, question: string): Promise
             messages: [
                 {
                     role: 'system',
-                    content: `You are a helpful AI assistant.
-                        Answer the question ONLY using the provided context.
-                        If the answer is not in the context, say:
-                        "I could not find the answer in the provided document."
-                        Do not make up information.`,
+                    content: `You are an expert assistant that answers questions based on the provided document.
+                                    Rules:
+                                    - If the user says "thank you", "thanks", "sorry", "okay", etc., respond politely and naturally.
+                                    - Do not say "I could not find the answer" for greetings or thanks.
+                                    - Keep responses short and friendly for casual messages.
+                                    - Only use the provided document context for actual questions about the content.
+                                    - Answer using only the information in the provided context.
+                                    - If the answer is not directly stated, you can summarize, infer, or list key topics when reasonable.
+                                    - For questions like "most important topics", "key points", "summarize", etc., provide the best answer possible from the document instead of refusing.
+                                    - Only say "I could not find..." if the topic is completely absent.`,
                 },
                 {
                     role: 'user',
