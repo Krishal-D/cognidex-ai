@@ -22,6 +22,7 @@ const Sidebar = ({
     const { documents, loading, uploadDocument } = useDocuments()
     const { conversations, createConversation } = useConversations(selectedDocumentId)
     const [uploading, setUploading] = useState(false)
+    const [expandedDocumentId, setExpandedDocumentId] = useState<number | null>(null)
 
     const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0]
@@ -36,7 +37,7 @@ const Sidebar = ({
     }
 
     const handleNewConversation = async (documentId: number) => {
-        const name = `Chat ${new Date().toLocaleTimeString()}`
+        const name = `Conversation ${conversations.length + 1}`
         const conv = await createConversation(name, documentId)
         if (conv) onSelectConversation(conv.id)
     }
@@ -72,14 +73,19 @@ const Sidebar = ({
                     <div key={doc.id}>
                         {/* Document row */}
                         <div
-                            onClick={() => onSelectDocument(doc.id)}
+                            onClick={() => {
+                                onSelectDocument(doc.id)
+                                setExpandedDocumentId(
+                                    expandedDocumentId === doc.id ? null : doc.id
+                                )
+                            }}
                             className={`flex items-center justify-between p-2.5 rounded-xl cursor-pointer transition-all ${selectedDocumentId === doc.id
                                 ? 'bg-white shadow-sm border border-[#E5E2DC]'
                                 : 'hover:bg-white/60'
                                 }`}
                         >
                             <div className="flex items-center gap-2 min-w-0">
-                                {selectedDocumentId === doc.id
+                                {expandedDocumentId === doc.id
                                     ? <HiOutlineChevronDown className="w-3.5 h-3.5 text-[#8A8680] flex-shrink-0" />
                                     : <HiOutlineChevronRight className="w-3.5 h-3.5 text-[#8A8680] flex-shrink-0" />
                                 }
@@ -99,12 +105,17 @@ const Sidebar = ({
                         </div>
 
                         {/* Conversations under selected document */}
-                        {selectedDocumentId === doc.id && (
-                            <div className="ml-6 mt-1 space-y-0.5">
+                        {expandedDocumentId === doc.id && (
+                            <div className="ml-6 mt-1 space-y-0.5"
+                                onClick={(e) => e.stopPropagation()}
+                            >
                                 {conversations.map((conv: Conversation) => (
                                     <div
                                         key={conv.id}
-                                        onClick={() => onSelectConversation(conv.id)}
+                                        onClick={(e) => {
+                                            e.stopPropagation()
+                                            onSelectConversation(conv.id)
+                                        }}
                                         className={`p-2 rounded-lg cursor-pointer text-sm transition-all truncate ${selectedConversationId === conv.id
                                             ? 'bg-[#16A34A] text-white'
                                             : 'text-[#3D3D3D] hover:bg-white/60'
