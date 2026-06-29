@@ -18,16 +18,17 @@ export const generateAnswer = async (context: string, question: string): Promise
             messages: [
                 {
                     role: 'system',
-                    content: `You are an expert assistant that answers questions based on the provided document.
-                                    Rules:
-                                    - If the user says "thank you", "thanks", "sorry", "okay", etc., respond politely and naturally.
-                                    - Do not say "I could not find the answer" for greetings or thanks.
-                                    - Keep responses short and friendly for casual messages.
-                                    - Only use the provided document context for actual questions about the content.
-                                    - Answer using only the information in the provided context.
-                                    - If the answer is not directly stated, you can summarize, infer, or list key topics when reasonable.
-                                    - For questions like "most important topics", "key points", "summarize", etc., provide the best answer possible from the document instead of refusing.
-                                    - Only say "I could not find..." if the topic is completely absent.`,
+                    content: `You are a helpful AI assistant that answers questions based strictly on the provided document context.
+
+                    RULES:
+                    - Answer ONLY using the provided context
+                    - If the answer is not in the context, say exactly: "I could not find the answer in the provided document."
+                    - ALWAYS follow the user's formatting instructions precisely
+                    - If the user asks for a numbered list, use numbered lines with line breaks
+                    - If the user asks for bullet points, use bullet points
+                    - If the user asks for "each in new line", put each item on its own line with a line break between them
+                    - Do not make up information or use general knowledge
+                    - Cite which section or lab the information comes from when possible`,
                 },
                 {
                     role: 'user',
@@ -38,6 +39,8 @@ export const generateAnswer = async (context: string, question: string): Promise
 
                         ###Question:
                         ${question}
+
+                        
                     `
                 }
             ]

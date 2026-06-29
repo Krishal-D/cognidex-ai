@@ -1,34 +1,91 @@
-const INTENTS = [
+type MatchType = "exact" | "contains";
+
+type CasualIntent = {
+    keywords: string[];
+    match: MatchType;
+    reply: string;
+};
+
+const intents: CasualIntent[] = [
     {
-        keywords: ["hi", "hello", "hey", "good morning", "good evening"],
-        reply: "Hi! 👋 How are you. Ask me anything about your uploaded documents."
+        keywords: [
+            "hi",
+            "hii",
+            "hello",
+            "hey",
+            "good morning",
+            "good afternoon",
+            "good evening",
+        ],
+        match: "exact",
+        reply: "Hi! 👋 I'm DocuSense AI. Ask me anything about your uploaded documents.",
     },
     {
-        keywords: ["bye", "goodbye", "see you", "take care"],
-        reply: "Goodbye! 👋 Have a great time."
+        keywords: [
+            "bye",
+            "goodbye",
+            "see you",
+            "see ya",
+            "cya",
+            "take care",
+        ],
+        match: "exact",
+        reply: "Goodbye! 👋 Come back anytime you need help with your documents.",
     },
     {
-        keywords: ["thanks", "thank you", "thx", "ty"],
-        reply: "You're welcome! 😊"
+        keywords: [
+            "thanks",
+            "thank you",
+            "thank u",
+            "thx",
+            "ty",
+            "tysm",
+        ],
+        match: "contains",
+        reply: "You're welcome! 😊",
     },
     {
-        keywords: ["sorry", "my bad", "apologies"],
-        reply: "No worries at all!"
+        keywords: [
+            "sorry",
+            "my bad",
+            "apologies",
+        ],
+        match: "contains",
+        reply: "No worries at all!",
     },
     {
-        keywords: ["help", "who are you", "what can you do"],
-        reply: "I'm DocuSense AI. Upload a PDF and ask questions about your documents."
-    }
+        keywords: [
+            "who are you",
+            "what are you",
+            "what can you do",
+            "help",
+        ],
+        match: "contains",
+        reply: "I'm DocuSense AI. Upload a PDF, select a conversation, and ask questions about the document.",
+    },
 ];
 
-export function getCasualReply(message: string): string | null {
-    const text = message
+function normalizeMessage(message: string): string {
+    return message
         .toLowerCase()
         .trim()
-        .replace(/[^\w\s]/g, "");
+        .replace(/[^\w\s]/g, "")
+        .replace(/\s+/g, " ");
+}
 
-    for (const intent of INTENTS) {
-        if (intent.keywords.some(k => text === k || text.includes(k))) {
+export function getCasualReply(message: string): string | null {
+    const text = normalizeMessage(message);
+
+    for (const intent of intents) {
+        const matched = intent.keywords.some((keyword) => {
+            if (intent.match === "exact") {
+                return text === keyword;
+            }
+
+            return text.includes(keyword);
+        });
+
+        if (matched) {
             return intent.reply;
         }
     }

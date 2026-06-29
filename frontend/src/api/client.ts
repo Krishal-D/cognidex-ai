@@ -7,9 +7,11 @@ const client = axios.create({
 
 client.interceptors.request.use((config) => {
     const token = localStorage.getItem('token')
+
     if (token) {
         config.headers.Authorization = `Bearer ${token}`
     }
+
     return config
 })
 
@@ -18,7 +20,11 @@ client.interceptors.response.use(
     async (error) => {
         const original = error.config
 
-        if (error.response?.status === 401 && !original._retry) {
+        if (
+            error.response?.status === 401 &&
+            !original._retry &&
+            !original.url?.includes('/auth/refresh')
+        ) {
             original._retry = true
 
             try {
@@ -26,9 +32,11 @@ client.interceptors.response.use(
                 const newToken = res.data.token
 
                 localStorage.setItem('token', newToken)
-                original.headers['Authorization'] = `Bearer ${newToken}`
-                return client(original)
 
+                original.headers = original.headers || {}
+                original.headers.Authorization = `Bearer ${newToken}`
+
+                return client(original)
             } catch {
                 localStorage.removeItem('token')
                 localStorage.removeItem('user')
@@ -39,6 +47,5 @@ client.interceptors.response.use(
         return Promise.reject(error)
     }
 )
-
 
 export default client

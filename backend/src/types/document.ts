@@ -50,9 +50,21 @@ export interface ChunkSearchResult {
     document_id: number;
     chunk_idx: number;
 }
-
 export interface IChunkModel {
-    insertChunk(chunkIdx: number, content: string, embedding: number[], documentId: number): Promise<Chunk>;
-    getChunksByDocument(documentId: number): Promise<Chunk[]>;
-    searchSimilarChunks(ownerId: number, embedding: number[]): Promise<ChunkSearchResult[]>
+    insertChunk(
+        chunkIdx: number,
+        content: string,
+        embedding: number[],
+        documentId: number
+    ): Promise<Chunk>;
+
+    getChunksByDocument(
+        ownerId: number,
+        documentId: number
+    ): Promise<ChunkSearchResult[]>;
+
+    searchSimilarChunks(
+        ownerId: number,
+        embedding: number[]
+    ): Promise<ChunkSearchResult[]>;
 }

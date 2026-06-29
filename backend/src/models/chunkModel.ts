@@ -14,11 +14,30 @@ export const chunkModel: IChunkModel = {
         return result.rows[0];
     },
 
-    async getChunksByDocument(documentId: number): Promise<Chunk[]> {
+    async getChunksByDocument(
+        ownerId: number,
+        documentId: number
+    ): Promise<ChunkSearchResult[]> {
+
         const result = await pool.query(
-            `SELECT * FROM chunks WHERE document_id = $1 ORDER BY chunk_idx`,
-            [documentId]
+            `
+        SELECT
+            c.id,
+            c.chunk_idx,
+            c.content,
+            c.document_id,
+            d.document_name
+        FROM chunks c
+        JOIN documents d
+            ON d.id = c.document_id
+        WHERE
+            c.document_id = $1
+            AND d.owner_id = $2
+        ORDER BY c.chunk_idx ASC
+        `,
+            [documentId, ownerId]
         );
+
         return result.rows;
     },
 

@@ -37,8 +37,11 @@ export const documentService = {
 
         try {
             const pdfData = await pdfParse(pdfBuffer);
-            const cleanedText = pdfData.text.replace(/\s+/g, " ").trim();
-
+            const cleanedText = pdfData.text
+                .replace(/\u0000/g, "")
+                .replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, "")
+                .replace(/\s+/g, " ")
+                .trim();
             await documentModel.updateStatus('processing', document.id);
 
             const chunks = chunkText(cleanedText, 500, 50);

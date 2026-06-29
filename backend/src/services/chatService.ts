@@ -25,16 +25,14 @@ export const chatService = {
         const conversation = await chatModel.getConversationById(ownerId, parsedConversationId);
         if (!conversation) throw notFoundError("Conversation not found");
 
+        const documentId = conversation.document_id
+
+
         const casualReply = getCasualReply(userQuery);
 
         if (casualReply) {
             await chatModel.createMessage(parsedConversationId, "user", userQuery.trim());
-
-            await chatModel.createMessage(
-                parsedConversationId,
-                "assistant",
-                casualReply
-            );
+            await chatModel.createMessage(parsedConversationId, "assistant", casualReply);
 
             return {
                 answer: casualReply,
@@ -42,13 +40,33 @@ export const chatService = {
             };
         }
 
-        const [queryEmbedding] = await getEmbedding([userQuery]);
+        const wantsExtraction =
+            /list|extract|show|display|questions|review questions|summary|summarize|table|all/i
+                .test(userQuery.toLowerCase());
 
-        if (!queryEmbedding) {
-            throw new Error("Failed to generate query embedding");
+        let chunks;
+
+        if (wantsExtraction) {
+
+            chunks = await chunkModel.getChunksByDocument(
+                ownerId,
+                documentId
+            );
+
+        } else {
+
+            const [queryEmbedding] = await getEmbedding([userQuery]);
+
+            if (!queryEmbedding) {
+                throw new Error("Failed to generate query embedding");
+            }
+
+            chunks = await chunkModel.searchSimilarChunks(
+                ownerId,
+                queryEmbedding
+            );
+
         }
-
-        const chunks = await chunkModel.searchSimilarChunks(ownerId, queryEmbedding);
 
         await chatModel.createMessage(parsedConversationId, "user", userQuery.trim());
 
@@ -58,18 +76,18 @@ export const chatService = {
             return { answer: noInfoAnswer, sources: [] };
         }
 
-        const topChunks = chunks.slice(0, 5);
 
-        const context = topChunks
-            .map((c, i) => `Chunk ${i + 1} (Document: ${c.document_name}):\n${c.content}`)
+        const context = chunks
+            .map((c) => `Document: ${c.document_name}\n${c.content}`)
             .join("\n\n");
 
         const answer = await generateAnswer(context, userQuery);
+
         await chatModel.createMessage(parsedConversationId, "assistant", answer);
 
         return {
             answer,
-            sources: topChunks.map(c => ({
+            sources: chunks.map(c => ({
                 document: c.document_name,
                 documentId: c.document_id,
                 chunkIndex: c.chunk_idx
