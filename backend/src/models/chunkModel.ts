@@ -45,15 +45,14 @@ export const chunkModel: IChunkModel = {
         const embeddingVector = `[${embedding.join(",")}]`;
 
         const result = await pool.query(`
-            SELECT c.content, c.id, c.document_id, c.chunk_idx, d.document_name
-            FROM chunks c
-            JOIN documents d ON c.document_id = d.id
-            WHERE d.owner_id = $1
-            ORDER BY c.embedding <=> $2::vector
-            LIMIT 5
-            `, [ownerId, embeddingVector])
+        SELECT c.content, c.id, c.document_id, c.chunk_idx, d.document_name
+        FROM chunks c
+        JOIN documents d ON c.document_id = d.id
+        WHERE d.owner_id = $1 AND d.id = $2
+        ORDER BY c.embedding <=> $3::vector
+        LIMIT 5
+        `, [ownerId, documentId, embeddingVector])
 
         return result.rows
-
     }
 }

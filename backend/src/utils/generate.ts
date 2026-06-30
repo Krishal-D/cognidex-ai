@@ -10,7 +10,10 @@ const openai = new OpenAI({
 
 
 export const generateAnswer = async (context: string, question: string): Promise<string> => {
-
+    console.log('--- SENDING TO GPT ---')
+    console.log('Question:', question)
+    console.log('Context:', context)
+    console.log('--- END ---')
     try {
         const completion = await openai.chat.completions.create({
             model: 'gpt-4o-mini',
@@ -20,31 +23,20 @@ export const generateAnswer = async (context: string, question: string): Promise
                     role: 'system',
                     content: `You are a helpful AI assistant that answers questions based strictly on the provided document context.
 
-                    RULES:
-                    - Answer ONLY using the provided context
-                    - If the answer is not in the context, say exactly: "I could not find the answer in the provided document."
-                    - ALWAYS follow the user's formatting instructions precisely
-                    - If the user asks for a numbered list, use numbered lines with line breaks
-                    - If the user asks for bullet points, use bullet points
-                    - If the user asks for "each in new line", put each item on its own line with a line break between them
-                    - Do not make up information or use general knowledge
-                    - Cite which section or lab the information comes from when possible`,
+
+RULES:
+- Answer ONLY using the provided context
+- Document titles, headings, and the first bold or capitalized phrase in the context often indicate the document type or heading - use this to answer "what is the heading/title" questions
+- If the question asks about the document's topic, heading, title, subject, or what it is about, synthesize a reasonable answer by analyzing the content even if no single sentence directly states it
+- If the answer truly cannot be inferred from the context at all, say exactly: "I could not find the answer in the provided document."
+- ALWAYS follow the user's formatting instructions precisely
+- Do not invent facts or use external knowledge beyond what's reasonably inferable from the context`,
                 },
                 {
                     role: 'user',
-                    content:
-                        `
-                        ###Context:
-                        ${context}
-
-                        ###Question:
-                        ${question}
-
-                        
-                    `
+                    content: `###Context:\n${context}\n\n###Question:\n${question}`
                 }
             ]
-
         })
         const response = completion.choices[0]?.message?.content;
 

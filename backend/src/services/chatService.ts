@@ -41,8 +41,10 @@ export const chatService = {
         }
 
         const wantsExtraction =
-            /list|extract|show|display|questions|review questions|summary|summarize|table|all/i
+            /list|extract|show|display|questions|review questions|summary|summarize|table|all|what is this|what is the|about|topic|heading|title/i
                 .test(userQuery.toLowerCase());
+
+        console.log('wantsExtraction:', wantsExtraction, 'for query:', userQuery)
 
         let chunks;
 
@@ -81,6 +83,9 @@ export const chatService = {
         const context = chunks
             .map((c) => `Document: ${c.document_name}\n${c.content}`)
             .join("\n\n");
+
+        console.log('chunks count:', chunks.length)
+        console.log('context length:', context.length)
 
         const answer = await generateAnswer(context, userQuery);
 
