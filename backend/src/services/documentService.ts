@@ -5,16 +5,9 @@ const pdfParse = require('pdf-parse').default ?? require('pdf-parse');
 import { UploadResult, DocumentStatus, DocumentWithUser } from "../types";
 import { chunkText } from "../utils/chunk";
 import { getEmbedding } from "../utils/embedding";
+import { authError, validationError } from "../utils/errors";
 
 const VALID_STATUSES: DocumentStatus[] = ["pending", "indexed", "processing", "failed"];
-
-function authError(): Error {
-    return Object.assign(new Error("Unauthorized"), { status: 401 });
-}
-
-function validationError(message: string): Error {
-    return Object.assign(new Error(message), { status: 400 });
-}
 
 export const documentService = {
 
@@ -38,7 +31,7 @@ export const documentService = {
         try {
             const pdfData = await pdfParse(pdfBuffer);
             const cleanedText = pdfData.text
-                .replace(/\u0000/g, "")
+                // eslint-disable-next-line no-control-regex -- intentionally stripping raw control bytes left by PDF text extraction
                 .replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, "")
                 .replace(/\s+/g, " ")
                 .trim();

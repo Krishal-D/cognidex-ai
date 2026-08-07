@@ -55,7 +55,7 @@ export const authService = {
             const user = await verifyRefreshToken(token);
             if (user?.id) await userModel.removeRefreshToken(user.id);
         } catch {
-            
+            // Invalid/expired refresh token — logout should still succeed
         }
     },
 

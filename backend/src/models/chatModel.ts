@@ -1,6 +1,5 @@
 import { pool } from "../config/db"
 import { IChatModel, MessageRole } from "../types"
-import { authError, notFoundError } from '../utils/errors'
 
 export const chatModel: IChatModel = {
 
@@ -74,12 +73,11 @@ export const chatModel: IChatModel = {
             `, [ownerId, conversationId])
         return result.rows
     },
-    async deleteConversation(ownerId: number, conversationId: number): Promise<void> {
-        if (!ownerId) throw authError()
-        const conversation = await chatModel.getConversationById(ownerId, conversationId)
-        if (!conversation) throw notFoundError('Conversation not found')
-        await chatModel.deleteConversation(conversationId, ownerId)
+    async deleteConversation(conversationId: number, ownerId: number): Promise<void> {
+        await pool.query(
+            `DELETE FROM conversations WHERE id = $1 AND owner_id = $2`,
+            [conversationId, ownerId]
+        )
     },
-
 
 }

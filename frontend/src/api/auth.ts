@@ -1,7 +1,7 @@
 import client from './client.ts';
 
 export const authAPI = {
-  async register(name: String, email: string, password: string) {
+  async register(name: string, email: string, password: string) {
     const res = await client.post('/auth/register', { name, email, password });
     return res.data;
   },

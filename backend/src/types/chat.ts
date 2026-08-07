@@ -43,5 +43,5 @@ export interface IChatModel {
     getConversationById(ownerId: number, conversationId: number): Promise<Conversation | null>;
     createMessage(conversationId: number, role: MessageRole, messageContent: string): Promise<Message>;
     getMessagesByConversation(ownerId: number, conversationId: number): Promise<MessageWithConversation[]>;
-    deleteConversation(conversationId: number, ownerId: number): Promise<void>;  // ← add this
+    deleteConversation(conversationId: number, ownerId: number): Promise<void>;
 }

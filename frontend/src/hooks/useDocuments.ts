@@ -30,7 +30,7 @@ export const useDocuments = () => {
         const interval = setInterval(async () => {
             const data = await documentAPI.findDocumentByUser()
             const stillProcessing = data.document?.some(
-                (d: Document) => d.status === 'pending' || d.status === 'indexing'
+                (d: Document) => d.status === 'pending' || d.status === 'processing'
             )
             setDocuments(data.document || [])
             if (!stillProcessing) clearInterval(interval)

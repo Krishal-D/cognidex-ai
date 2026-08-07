@@ -1,9 +1,8 @@
-import { createContext, useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import type { ReactNode } from "react";
 import { authAPI } from "../api/auth";
-import type { AuthContextType, User } from "../types";
-
-export const AuthContext = createContext<AuthContextType | undefined>(undefined)
+import type { User } from "../types";
+import { AuthContext } from "./AuthContextObject";
 
 export function AuthProvider({ children }: { children: ReactNode }) {
 
@@ -49,6 +48,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
         } catch (error) {
             setError('Login Failed')
+            throw error
 
         } finally {
             setLoading(false)
@@ -63,6 +63,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         try {
             await authAPI.logout()
         } catch {
+            // Best-effort: clear local session state below regardless of server response
         } finally {
             setAccessToken(null)
             setUser(null)
@@ -79,7 +80,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             const data = await authAPI.refresh()
             setAccessToken(data.token)
             setUser(data.user)
-        } catch (error) {
+        } catch {
             setAccessToken(null)
             setUser(null)
         }

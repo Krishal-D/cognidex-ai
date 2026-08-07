@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { chatAPI } from '../api/chat'
 import type { Conversation } from '../types'
 
@@ -6,7 +6,7 @@ export const useConversations = (documentId: number | null) => {
     const [conversations, setConversations] = useState<Conversation[]>([])
     const [loading, setLoading] = useState(false)
 
-    const fetchConversations = async () => {
+    const fetchConversations = useCallback(async () => {
         if (!documentId) return
         setLoading(true)
         try {
@@ -15,7 +15,7 @@ export const useConversations = (documentId: number | null) => {
         } finally {
             setLoading(false)
         }
-    }
+    }, [documentId])
 
     const createConversation = async (name: string, docId: number) => {
         const data = await chatAPI.createConversation(name, docId)
@@ -26,7 +26,7 @@ export const useConversations = (documentId: number | null) => {
     useEffect(() => {
         setConversations([])
         fetchConversations()
-    }, [documentId])
+    }, [documentId, fetchConversations])
 
     return { conversations, loading, createConversation }
 }

@@ -3,7 +3,8 @@ import Input from "../components/ui/input";
 import { useState } from "react";
 import { useAuth } from "../hooks/useAuth";
 import type { RegisterFormData } from "../types/component";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import axios from "axios";
 
 export function Register() {
     const initialForm: RegisterFormData = {
@@ -13,6 +14,7 @@ export function Register() {
         confirmPassword: ""
     };
 
+    const navigate = useNavigate();
     const { register } = useAuth();
 
     const [form, setForm] = useState<RegisterFormData>(initialForm);
@@ -37,9 +39,12 @@ export function Register() {
 
         try {
             await register(form.name, form.email, form.password);
-            // Optionally navigate to login or dashboard
-        } catch (err: any) {
-            setError(err.response?.data?.message || 'Registration failed');
+            navigate('/dashboard');
+        } catch (err) {
+            const message = axios.isAxiosError<{ message?: string }>(err)
+                ? err.response?.data?.message
+                : undefined;
+            setError(message || 'Registration failed');
         } finally {
             setLoading(false);
         }

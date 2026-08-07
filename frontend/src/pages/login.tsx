@@ -5,6 +5,7 @@ import { useAuth } from "../hooks/useAuth";
 import type { LoginFormData } from "../types/component";
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 export function Login() {
     const initialForm: LoginFormData = {
@@ -32,8 +33,11 @@ export function Login() {
         try {
             await login(form.email, form.password);
             navigate('/dashboard');
-        } catch (err: any) {
-            setError(err.response?.data?.message || 'Login failed');
+        } catch (err) {
+            const message = axios.isAxiosError<{ message?: string }>(err)
+                ? err.response?.data?.message
+                : undefined;
+            setError(message || 'Login failed');
         } finally {
             setLoading(false);
         }

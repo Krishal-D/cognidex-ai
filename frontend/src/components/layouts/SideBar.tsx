@@ -103,7 +103,7 @@ const Sidebar = ({
                             </div>
                             <span className={`text-xs px-1.5 py-0.5 rounded-full flex-shrink-0 ml-1 ${doc.status === 'indexed'
                                 ? 'bg-emerald-100 text-emerald-700'
-                                : doc.status === 'pending'
+                                : doc.status === 'pending' || doc.status === 'processing'
                                     ? 'bg-amber-100 text-amber-700'
                                     : 'bg-red-100 text-red-600'
                                 }`}>

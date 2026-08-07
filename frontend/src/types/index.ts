@@ -7,7 +7,7 @@ export interface User {
 export interface Document {
   id: number;
   document_name: string;
-  status: 'pending' | 'indexing' | 'indexed' | 'failed';
+  status: 'pending' | 'processing' | 'indexed' | 'failed';
   created_at: string;
 }
 
