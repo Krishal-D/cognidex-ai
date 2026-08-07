@@ -2,9 +2,11 @@ import { useState, useRef, useEffect } from 'react'
 import { useMessages } from '../../hooks/useMessages'
 import { useChat } from '../../hooks/useChat'
 import MessageBubble from './MessageBubble'
+import SourceCitation from './SourceCitation'
 import { HiOutlinePaperAirplane, HiOutlinePaperClip } from 'react-icons/hi'
 import { chatAPI } from '../../api/chat'
 import { documentAPI } from '../../api/documents'
+import type { Source } from '../../types'
 
 interface Props {
     conversationId: number
@@ -24,6 +26,9 @@ const ChatWindow = ({ conversationId }: Props) => {
         message_content: string
         conversation_id: number
     }>>([])
+    // Sources aren't persisted server-side (messages only store role/content), so this only
+    // covers answers received during this session — reloading the conversation loses them.
+    const [sourcesByMessageId, setSourcesByMessageId] = useState<Record<number, Source[]>>({})
 
 
 
@@ -37,6 +42,10 @@ const ChatWindow = ({ conversationId }: Props) => {
         textarea.style.height = 'auto'
         textarea.style.height = `${Math.min(textarea.scrollHeight, 160)}px`
     }, [input])
+
+    useEffect(() => {
+        setSourcesByMessageId({})
+    }, [conversationId])
 
 
 
@@ -56,9 +65,16 @@ const ChatWindow = ({ conversationId }: Props) => {
             message_content: question
         }])
 
-        await sendQuery(conversationId, question)
+        const result = await sendQuery(conversationId, question)
         setOptimisticMessages([])
-        await refetch()
+        const updated = await refetch()
+
+        if (result?.sources?.length) {
+            const lastAssistant = [...updated].reverse().find(m => m.role === 'assistant')
+            if (lastAssistant) {
+                setSourcesByMessageId(prev => ({ ...prev, [lastAssistant.id]: result.sources }))
+            }
+        }
     }
 
     const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -115,7 +131,12 @@ const ChatWindow = ({ conversationId }: Props) => {
                 )}
 
                 {[...messages, ...optimisticMessages].map((msg) => (
-                    <MessageBubble key={msg.id} message={msg} />
+                    <div key={msg.id}>
+                        <MessageBubble message={msg} />
+                        {msg.role === 'assistant' && sourcesByMessageId[msg.id] && (
+                            <SourceCitation sources={sourcesByMessageId[msg.id]} />
+                        )}
+                    </div>
                 ))}
 
                 {querying && (

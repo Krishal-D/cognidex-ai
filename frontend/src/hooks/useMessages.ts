@@ -6,12 +6,14 @@ export const useMessages = (conversationId: number | null) => {
     const [messages, setMessages] = useState<Message[]>([])
     const [loading, setLoading] = useState(false)
 
-    const fetchMessages = useCallback(async () => {
-        if (!conversationId) return
+    const fetchMessages = useCallback(async (): Promise<Message[]> => {
+        if (!conversationId) return []
         setLoading(true)
         try {
             const data = await chatAPI.getMessagesByConversation(conversationId)
-            setMessages(data.messages || [])
+            const fetched: Message[] = data.messages || []
+            setMessages(fetched)
+            return fetched
         } finally {
             setLoading(false)
         }
