@@ -40,8 +40,13 @@ export const useDocuments = () => {
     }
 
     const deleteDocument = async (id: number) => {
-        await documentAPI.deleteDocument(id)
-        setDocuments(prev => prev.filter(d => d.id !== id))
+        setError(null)
+        try {
+            await documentAPI.deleteDocument(id)
+            setDocuments(prev => prev.filter(d => d.id !== id))
+        } catch {
+            setError('Failed to delete document')
+        }
     }
 
     useEffect(() => { fetchDocuments() }, [])

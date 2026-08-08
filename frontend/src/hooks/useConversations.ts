@@ -23,10 +23,15 @@ export const useConversations = (documentId: number | null) => {
         return data.conversation
     }
 
+    const renameConversation = async (conversationId: number, newName: string) => {
+        await chatAPI.updateConversationName(conversationId, newName)
+        await fetchConversations()
+    }
+
     useEffect(() => {
         setConversations([])
         fetchConversations()
     }, [documentId, fetchConversations])
 
-    return { conversations, loading, createConversation }
+    return { conversations, loading, createConversation, renameConversation }
 }

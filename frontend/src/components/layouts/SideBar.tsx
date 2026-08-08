@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useDocuments } from '../../hooks/useDocuments'
 import { useConversations } from '../../hooks/useConversations'
 import type { Document, Conversation } from '../../types'
-import { HiOutlineDocument, HiOutlineSparkles, HiOutlineUpload, HiOutlinePlus, HiOutlineChevronDown, HiOutlineChevronRight } from 'react-icons/hi'
+import { HiOutlineDocument, HiOutlineSparkles, HiOutlineUpload, HiOutlinePlus, HiOutlineChevronDown, HiOutlineChevronRight, HiOutlineTrash, HiOutlinePencil } from 'react-icons/hi'
 import { useAuth } from '../../hooks/useAuth'
 
 interface SidebarProps {
@@ -19,8 +19,8 @@ const Sidebar = ({
     onSelectConversation
 }: SidebarProps) => {
     const { user, logout } = useAuth()
-    const { documents, loading, uploadDocument } = useDocuments()
-    const { conversations, createConversation } = useConversations(selectedDocumentId)
+    const { documents, loading, error, uploadDocument, deleteDocument } = useDocuments()
+    const { conversations, createConversation, renameConversation } = useConversations(selectedDocumentId)
     const [uploading, setUploading] = useState(false)
     const [expandedDocumentId, setExpandedDocumentId] = useState<number | null>(null)
 
@@ -40,6 +40,24 @@ const Sidebar = ({
         const name = `Conversation ${conversations.length + 1}`
         const conv = await createConversation(name, documentId)
         if (conv) onSelectConversation(conv.id)
+    }
+
+    const handleDeleteDocument = async (e: React.MouseEvent, doc: Document) => {
+        e.stopPropagation()
+        if (!window.confirm(`Delete "${doc.document_name}"? This also deletes its conversations.`)) return
+        await deleteDocument(doc.id)
+        if (expandedDocumentId === doc.id) setExpandedDocumentId(null)
+    }
+
+    const handleRenameConversation = async (e: React.MouseEvent, conv: Conversation) => {
+        e.stopPropagation()
+        const newName = window.prompt('Rename conversation', conv.conversation_name)?.trim()
+        if (!newName || newName === conv.conversation_name) return
+        try {
+            await renameConversation(conv.id, newName)
+        } catch {
+            window.alert('Failed to rename conversation. Please try again.')
+        }
     }
 
     return (
@@ -66,6 +84,12 @@ const Sidebar = ({
                     Documents
                 </p>
 
+                {error && (
+                    <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-2 py-1.5 mb-1">
+                        {error}
+                    </p>
+                )}
+
                 {loading && (
                     <p className="text-sm text-[#8A8680] px-2">Loading...</p>
                 )}
@@ -86,7 +110,7 @@ const Sidebar = ({
                                     expandedDocumentId === doc.id ? null : doc.id
                                 )
                             }}
-                            className={`flex items-center justify-between p-2.5 rounded-xl cursor-pointer transition-all ${selectedDocumentId === doc.id
+                            className={`group flex items-center justify-between p-2.5 rounded-xl cursor-pointer transition-all ${selectedDocumentId === doc.id
                                 ? 'bg-white shadow-sm border border-[#E5E2DC]'
                                 : 'hover:bg-white/60'
                                 }`}
@@ -101,14 +125,24 @@ const Sidebar = ({
                                     {doc.document_name}
                                 </span>
                             </div>
-                            <span className={`text-xs px-1.5 py-0.5 rounded-full flex-shrink-0 ml-1 ${doc.status === 'indexed'
-                                ? 'bg-emerald-100 text-emerald-700'
-                                : doc.status === 'pending' || doc.status === 'processing'
-                                    ? 'bg-amber-100 text-amber-700'
-                                    : 'bg-red-100 text-red-600'
-                                }`}>
-                                {doc.status}
-                            </span>
+                            <div className="flex items-center gap-1 flex-shrink-0 ml-1">
+                                <span className={`text-xs px-1.5 py-0.5 rounded-full ${doc.status === 'indexed'
+                                    ? 'bg-emerald-100 text-emerald-700'
+                                    : doc.status === 'pending' || doc.status === 'processing'
+                                        ? 'bg-amber-100 text-amber-700'
+                                        : 'bg-red-100 text-red-600'
+                                    }`}>
+                                    {doc.status}
+                                </span>
+                                <button
+                                    onClick={(e) => handleDeleteDocument(e, doc)}
+                                    title="Delete document"
+                                    aria-label={`Delete ${doc.document_name}`}
+                                    className="p-1 rounded-lg text-[#8A8680] opacity-0 group-hover:opacity-100 hover:bg-red-100 hover:text-red-600 transition-all"
+                                >
+                                    <HiOutlineTrash className="w-3.5 h-3.5" />
+                                </button>
+                            </div>
                         </div>
 
                         {/* Conversations under selected document */}
@@ -123,12 +157,23 @@ const Sidebar = ({
                                             e.stopPropagation()
                                             onSelectConversation(conv.id)
                                         }}
-                                        className={`p-2 rounded-lg cursor-pointer text-sm transition-all truncate ${selectedConversationId === conv.id
+                                        className={`group/conv flex items-center justify-between gap-1 p-2 rounded-lg cursor-pointer text-sm transition-all ${selectedConversationId === conv.id
                                             ? 'bg-[#16A34A] text-white'
                                             : 'text-[#3D3D3D] hover:bg-white/60'
                                             }`}
                                     >
-                                        {conv.conversation_name}
+                                        <span className="truncate">{conv.conversation_name}</span>
+                                        <button
+                                            onClick={(e) => handleRenameConversation(e, conv)}
+                                            title="Rename conversation"
+                                            aria-label={`Rename ${conv.conversation_name}`}
+                                            className={`p-1 rounded-md flex-shrink-0 opacity-0 group-hover/conv:opacity-100 transition-all ${selectedConversationId === conv.id
+                                                ? 'hover:bg-white/20'
+                                                : 'hover:bg-white'
+                                                }`}
+                                        >
+                                            <HiOutlinePencil className="w-3 h-3" />
+                                        </button>
                                     </div>
                                 ))}
 
