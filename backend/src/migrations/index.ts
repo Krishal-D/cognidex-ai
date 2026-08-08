@@ -1,3 +1,4 @@
+export { extensionMigrate } from './000_extensionMigrate'
 export { userMigrate } from './001_userMigrate'
 export { documentMigrate } from './002_documentMigrate';
 export { chunkMigrate } from './003_chunkMigrate';
