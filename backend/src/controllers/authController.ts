@@ -58,5 +58,17 @@ export const authController = {
         } catch (error) {
             next(error);
         }
+    },
+
+    async updateProfile(req: Request, res: Response, next: NextFunction) {
+        try {
+            const { name } = req.body;
+            const userId = req.user?.id;
+
+            const user = await authService.updateProfile(userId, name);
+            return res.status(200).json({ user, message: "Profile updated successfully" });
+        } catch (error) {
+            next(error);
+        }
     }
 }

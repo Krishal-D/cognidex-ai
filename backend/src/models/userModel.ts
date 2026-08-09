@@ -23,6 +23,17 @@ export const userModel: IUserModel = {
         return result.rows[0]
     },
 
+    async updateName(id: number, name: string): Promise<User | null> {
+        const result = await pool.query(`
+            UPDATE users
+            SET name = $1
+            WHERE id = $2
+            RETURNING id,name,email
+            `, [name, id])
+
+        return result.rows[0] || null
+    },
+
     async updateRefreshToken(id: number, refresh_token: string): Promise<void> {
         await pool.query(`
             UPDATE users

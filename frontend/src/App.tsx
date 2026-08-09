@@ -4,13 +4,20 @@ import { Routes, Route } from 'react-router-dom';
 import { Login } from './pages/login';
 import { ProtectedRoute } from './components/layouts/ProtectedRoute';
 import Dashboard from './pages/Dashboard';
-import { Navigate } from 'react-router-dom';
+import Landing from './pages/Landing';
+import Settings from './pages/Settings';
 
 const App: React.FC = () => {
   return (
     <Routes>
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
+      <Route path="/settings"
+        element={
+          <ProtectedRoute>
+            <Settings />
+          </ProtectedRoute>
+        } />
       <Route path="/dashboard"
         element={
           <ProtectedRoute>
@@ -29,11 +36,7 @@ const App: React.FC = () => {
             <Dashboard />
           </ProtectedRoute>
         } />
-      <Route path="/"
-        element={
-          <Navigate to="/dashboard"
-            replace />
-        } />
+      <Route path="/" element={<Landing />} />
     </Routes>
 
   )

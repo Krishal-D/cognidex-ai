@@ -45,4 +45,5 @@ export interface AuthContextType {
   login: (email: string, password: string) => Promise<void>
   logout: () => Promise<void>
   refresh: () => Promise<void>
+  updateProfile: (name: string) => Promise<void>
 }

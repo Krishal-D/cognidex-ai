@@ -1,12 +1,9 @@
 import { userModel } from "../models/userModel"
 import bcrypt from 'bcrypt'
 import { generateAccessToken, generateRefreshToken, hashPassword, verifyRefreshToken } from "../config/auth"
-import { AuthUser, RefreshTokens } from "../types/user"
+import { AuthUser, RefreshTokens, User } from "../types/user"
 import { TokenPayload } from "../types"
-
-function validationError(message: string): Error {
-    return Object.assign(new Error(message), { status: 400 });
-}
+import { authError, notFoundError, validationError } from "../utils/errors"
 
 export const authService = {
     async register(name: unknown, email: unknown, password: unknown): Promise<AuthUser> {
@@ -57,6 +54,16 @@ export const authService = {
         } catch {
             // Invalid/expired refresh token — logout should still succeed
         }
+    },
+
+    async updateProfile(userId: number | undefined, name: unknown): Promise<Pick<User, "id" | "name" | "email">> {
+        if (!userId) throw authError();
+        if (!name || typeof name !== "string" || !name.trim()) throw validationError("Name is required");
+
+        const user = await userModel.updateName(userId, name.trim());
+        if (!user) throw notFoundError("User not found");
+
+        return { id: user.id, name: user.name, email: user.email };
     },
 
     async refresh(token: unknown): Promise<RefreshTokens> {

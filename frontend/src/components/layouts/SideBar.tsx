@@ -1,8 +1,9 @@
 import { useState } from 'react'
+import { Link } from 'react-router-dom'
 import { useDocuments } from '../../hooks/useDocuments'
 import { useConversations } from '../../hooks/useConversations'
 import type { Document, Conversation } from '../../types'
-import { HiOutlineDocument, HiOutlineSparkles, HiOutlineUpload, HiOutlinePlus, HiOutlineChevronDown, HiOutlineChevronRight, HiOutlineTrash, HiOutlinePencil } from 'react-icons/hi'
+import { HiOutlineDocument, HiOutlineSparkles, HiOutlineUpload, HiOutlinePlus, HiOutlineChevronDown, HiOutlineChevronRight, HiOutlineTrash, HiOutlinePencil, HiOutlineCog } from 'react-icons/hi'
 import { useAuth } from '../../hooks/useAuth'
 
 interface SidebarProps {
@@ -204,6 +205,14 @@ const Sidebar = ({
                         className="hidden"
                     />
                 </label>
+
+                <Link
+                    to="/settings"
+                    className="flex items-center gap-2 w-full p-2.5 rounded-xl text-sm text-[#8A8680] hover:bg-white/60 hover:text-[#1A1A1A] transition-all"
+                >
+                    <HiOutlineCog className="w-4 h-4" />
+                    Settings
+                </Link>
 
                 <button
                     onClick={logout}

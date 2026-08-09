@@ -86,6 +86,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
     }
 
+    const updateProfile = async (name: string) => {
+        setLoading(true)
+
+        try {
+            const data = await authAPI.updateProfile(name)
+            setUser(data.user)
+            localStorage.setItem('user', JSON.stringify(data.user))
+        } catch (error) {
+            setError('Failed to update profile')
+            throw error
+
+        } finally {
+            setLoading(false)
+        }
+    }
+
     useEffect(() => {
         const savedToken = localStorage.getItem('token')
         const savedUser = localStorage.getItem('user')
@@ -106,6 +122,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             login,
             logout,
             refresh,
+            updateProfile,
         }}>
             {children}
         </AuthContext.Provider>

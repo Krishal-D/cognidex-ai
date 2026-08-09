@@ -20,4 +20,9 @@ export const authAPI = {
     const res = await client.post('/auth/refresh');
     return res.data;
   },
+
+  async updateProfile(name: string) {
+    const res = await client.put('/auth/me', { name });
+    return res.data;
+  },
 };

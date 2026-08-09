@@ -11,6 +11,7 @@ export interface IUserModel {
     findUserByEmail(email: string): Promise<User | null>;
     findUserById(id: number): Promise<User | null>;
     createUser(name: string, email: string, password: string): Promise<User>;
+    updateName(id: number, name: string): Promise<User | null>;
     updateRefreshToken(id: number, refresh_token: string): Promise<void>;
     removeRefreshToken(id: number): Promise<void>;
     verifyRefreshToken(id: number, refreshToken: string): Promise<User | null>;
