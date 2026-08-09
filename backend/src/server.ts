@@ -11,6 +11,7 @@ import authRoute from './routes/authRoute'
 import { errorHandler } from './middleware/errorHandling'
 import documentRoute from './routes/documentRoutes'
 import chatRoute from './routes/chatRoute'
+import healthRoute from './routes/healthRoute'
 
 const app = express()
 const PORT = process.env.PORT || 5000
@@ -24,6 +25,7 @@ app.use(express.json())
 app.use(cookieParser())
 
 
+app.use('/api/health', healthRoute)
 app.use('/api/auth', authRoute)
 app.use('/api/documents', documentRoute)
 app.use('/api/chat',chatRoute)

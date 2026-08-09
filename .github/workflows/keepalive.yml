@@ -1,0 +1,22 @@
+name: Keep Alive
+
+# Render's free tier spins the backend down after ~15 minutes of no inbound
+# requests, and Supabase's free tier pauses the whole Postgres project after
+# 7 days with no database activity. This workflow pings a health-check route
+# that touches the database, so both stay warm. It's a mitigation, not a
+# guarantee — GitHub's scheduled workflows can run a few minutes late under
+# load, and GitHub auto-disables schedules on repos with no commits for 60
+# days (pushing any commit re-enables it).
+on:
+  schedule:
+    - cron: '*/10 * * * *'
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping backend health endpoint
+        run: |
+          curl -fsS --retry 3 --retry-delay 5 "https://docusense-ai-7qgk.onrender.com/api/health" \
+            || echo "::warning::Health check ping failed (service may still be cold-starting)"
