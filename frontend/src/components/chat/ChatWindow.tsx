@@ -15,7 +15,7 @@ interface Props {
 
 const ChatWindow = ({ conversationId }: Props) => {
     const { messages, loading, refetch } = useMessages(conversationId)
-    const { sendQuery, loading: querying } = useChat()
+    const { sendQuery, loading: querying, error: chatError } = useChat()
     const [input, setInput] = useState('')
     const [uploading, setUploading] = useState(false)
     const bottomRef = useRef<HTMLDivElement>(null)
@@ -157,6 +157,12 @@ const ChatWindow = ({ conversationId }: Props) => {
 
             {/* Input */}
             <div className="p-4 border-t border-[#E5E2DC]">
+                {chatError && (
+                    <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2 mb-3 text-center">
+                        {chatError}
+                    </p>
+                )}
+
                 <div className="flex gap-2 items-end bg-white border border-[#E5E2DC] rounded-2xl p-3">
 
                     {/* File upload */}

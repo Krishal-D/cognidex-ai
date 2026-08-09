@@ -36,10 +36,11 @@ client.interceptors.response.use(
                 original.headers.Authorization = `Bearer ${newToken}`
 
                 return client(original)
-            } catch {
+            } catch (refreshError) {
                 localStorage.removeItem('token')
                 localStorage.removeItem('user')
                 window.location.href = '/login'
+                return Promise.reject(refreshError)
             }
         }
 

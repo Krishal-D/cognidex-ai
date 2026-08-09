@@ -21,11 +21,18 @@ export const useDocuments = () => {
     }
 
     const uploadDocument = async (file: File, name: string) => {
+        setError(null)
         const formData = new FormData()
         formData.append('file', file)
         formData.append('documentName', name)
-        await documentAPI.uploadDocument(formData)
-        await fetchDocuments()
+
+        try {
+            await documentAPI.uploadDocument(formData)
+            await fetchDocuments()
+        } catch {
+            setError('Failed to upload document')
+            return
+        }
 
         const interval = setInterval(async () => {
             const data = await documentAPI.findDocumentByUser()
