@@ -1,6 +1,10 @@
 import { pool } from "../config/db";
 import { Chunk, IChunkModel, ChunkSearchResult } from "../types";
 
+const SIMILARITY_TOP_K = 5;
+const MAX_COSINE_DISTANCE = 0.8;
+const MAX_DOCUMENT_CHUNKS = 80;
+
 export const chunkModel: IChunkModel = {
 
     async insertChunk(chunkIdx: number, content: string, embedding: number[], documentId: number): Promise<Chunk> {
@@ -34,8 +38,9 @@ export const chunkModel: IChunkModel = {
             c.document_id = $1
             AND d.owner_id = $2
         ORDER BY c.chunk_idx ASC
+        LIMIT $3
         `,
-            [documentId, ownerId]
+            [documentId, ownerId, MAX_DOCUMENT_CHUNKS]
         );
 
         return result.rows;
@@ -48,10 +53,10 @@ export const chunkModel: IChunkModel = {
         SELECT c.content, c.id, c.document_id, c.chunk_idx, d.document_name
         FROM chunks c
         JOIN documents d ON c.document_id = d.id
-        WHERE d.owner_id = $1 AND d.id = $2
+        WHERE d.owner_id = $1 AND d.id = $2 AND (c.embedding <=> $3::vector) < $4
         ORDER BY c.embedding <=> $3::vector
-        LIMIT 5
-        `, [ownerId, documentId, embeddingVector])
+        LIMIT $5
+        `, [ownerId, documentId, embeddingVector, MAX_COSINE_DISTANCE, SIMILARITY_TOP_K])
 
         return result.rows
     }

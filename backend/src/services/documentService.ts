@@ -6,6 +6,7 @@ import { UploadResult, DocumentStatus, DocumentWithUser } from "../types";
 import { chunkText } from "../utils/chunk";
 import { getEmbedding } from "../utils/embedding";
 import { authError, validationError } from "../utils/errors";
+import { isLikelyPdf } from "../utils/fileValidation";
 
 const VALID_STATUSES: DocumentStatus[] = ["pending", "indexed", "processing", "failed"];
 
@@ -19,6 +20,10 @@ export const documentService = {
         }
 
         if (!pdfBuffer) throw validationError("PDF file is required");
+
+        if (!isLikelyPdf(pdfBuffer)) {
+            throw validationError("File does not appear to be a valid PDF");
+        }
 
         const resolvedStatus: DocumentStatus = VALID_STATUSES.includes(status as DocumentStatus)
             ? (status as DocumentStatus)

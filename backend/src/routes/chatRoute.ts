@@ -1,11 +1,12 @@
 import express from "express";
 import { chatController } from "../controllers/chatController";
 import { authenticate } from "../middleware/auth";
+import { chatLimiter } from "../middleware/rateLimit";
 
 
 const router = express.Router()
 
-router.post('/conversations/:conversationId/query', authenticate, chatController.query)
+router.post('/conversations/:conversationId/query', authenticate, chatLimiter, chatController.query)
 router.post('/conversations', authenticate, chatController.createConversation)
 router.get('/conversations', authenticate, chatController.getConversationsByUser)
 router.get('/documents/:documentId/conversations', authenticate, chatController.getConversationsByDocument)

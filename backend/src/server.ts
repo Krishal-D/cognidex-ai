@@ -1,5 +1,3 @@
-// Must run before any module below that reads process.env at import time
-// (config/auth.ts, config/db.ts, utils/embedding.ts, utils/generate.ts).
 import { validateEnv } from './config/env'
 validateEnv()
 
@@ -15,6 +13,12 @@ import healthRoute from './routes/healthRoute'
 
 const app = express()
 const PORT = process.env.PORT || 5000
+
+// Render (and most PaaS hosts) put the app behind a reverse proxy. Without
+// this, every request looks like it comes from the proxy's own IP, which
+// would make the IP-keyed rate limiter in middleware/rateLimit.ts treat all
+// users as a single client instead of limiting them individually.
+app.set('trust proxy', 1)
 
 app.use(helmet())
 app.use(cors({

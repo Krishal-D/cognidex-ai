@@ -1,6 +1,6 @@
 import { getEmbedding } from "../utils/embedding";
 import { chunkModel } from "../models/chunkModel";
-import { generateAnswer } from "../utils/generate";
+import { generateAnswer, ChatHistoryMessage } from "../utils/generate";
 import { chatModel } from "../models/chatModel";
 import { getCasualReply } from "../utils/casualReplies";
 import { authError, notFoundError, validationError } from '../utils/errors'
@@ -44,7 +44,11 @@ export const chatService = {
             /list|extract|show|display|questions|review questions|summary|summarize|table|all|what is this|what is the|about|topic|heading|title/i
                 .test(userQuery.toLowerCase());
 
-        console.log('wantsExtraction:', wantsExtraction, 'for query:', userQuery)
+        const priorMessages = await chatModel.getMessagesByConversation(ownerId, parsedConversationId);
+        const history: ChatHistoryMessage[] = priorMessages.map((m) => ({
+            role: m.role === "assistant" ? "assistant" : "user",
+            content: m.message_content,
+        }));
 
         let chunks;
 
@@ -84,10 +88,7 @@ export const chatService = {
             .map((c) => `Document: ${c.document_name}\n${c.content}`)
             .join("\n\n");
 
-        console.log('chunks count:', chunks.length)
-        console.log('context length:', context.length)
-
-        const answer = await generateAnswer(context, userQuery);
+        const answer = await generateAnswer(context, userQuery, history);
 
         await chatModel.createMessage(parsedConversationId, "assistant", answer);
 
